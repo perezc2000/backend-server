@@ -1,14 +1,13 @@
 var express = require('express');
-var bcrypt = require('bcryptjs');
 
 var app = express();
 
 var mdAuthentication = require('../middlewares/authentication');
 
-var User = require('../models/user');
+var Doctor = require('../models/doctor');
 
 // ============================================================
-// Get all users
+// Get all doctors
 // ============================================================
 app.get('/', (req, res) => {
     var _from = req.body.from || 0;
@@ -17,100 +16,101 @@ app.get('/', (req, res) => {
     _from = Number(_from);
     _set = Number(_set);
 
-    User.find({})
+    Doctor.find({})
         .skip(_from)
         .limit(_set)
+        .populate('user')
+        .populate('hospital')
         .exec(
-            (err, users) => {
+            (err, doctors) => {
                 if (err) {
                     return res.status(500).json({
                         ok: false,
-                        message: 'Error loading users',
+                        message: 'Error loading doctors',
                         errors: err
                     });
                 }
 
-                User.countDocuments({}, (err, count) => {
+                Doctor.countDocuments({}, (err, count) => {
                     res.status(200).json({
                         ok: true,
                         count: count,
-                        users: users
+                        doctors: doctors
                     });
                 });
             });
 });
 
 // ============================================================
-// Create user
+// Create doctor
 // ============================================================
 app.post('/', mdAuthentication.validateToken, (req, res) => {
     var body = req.body;
-    var user = new User({
+    var doctor = new Doctor({
         name: body.name,
-        lastname: body.lastname,
-        email: body.email,
-        password: bcrypt.hashSync(body.password, 10),
         image: body.image,
-        rol: body.rol,
-        google: body.google
+        hospital: body.hospital,
+        user: req.user._id
     });
 
-    user.save((err, userSaved) => {
+    doctor.save((err, doctorSaved) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
-                message: 'Error saving user',
+                message: 'Error saving doctor',
                 errors: err
             });
         }
 
         res.status(201).json({
             ok: true,
-            user: userSaved,
+            doctor: doctorSaved,
             userToken: req.user
         });
     });
 });
 
 // ============================================================
-// Update user
+// Update doctor
 // ============================================================
 app.put('/:id', mdAuthentication.validateToken, (req, res) => {
     var id = req.params.id;
 
-    User.findById(id, (err, user) => {
+    Doctor.findById(id, (err, doctor) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                message: 'Error finding user',
+                message: 'Error finding doctor',
                 errors: err
             });
         }
 
-        if (!user) {
+        if (!doctor) {
             return res.status(400).json({
                 ok: false,
-                message: 'Error user with ID ' + id + ' not exists',
-                errors: { message: 'User not exists with this ID' }
+                message: 'Error doctor with ID ' + id + ' not exists',
+                errors: { message: 'Doctor not exists with this ID' }
             });
         }
 
         Object.keys(req.body).forEach(key => {
-            user[key] = req.body[key];
+            doctor[key] = req.body[key];
         });
+        // Update user of updating
+        doctor.user = req.user._id;
 
-        user.save((err, userUpdated) => {
+        doctor.save((err, doctorUpdated) => {
             if (err) {
                 return res.status(400).json({
                     ok: false,
-                    message: 'Error updating user',
+                    message: 'Error updating doctor',
                     errors: err
                 });
             }
 
             res.status(200).json({
                 ok: true,
-                user: userUpdated,
+                doctor: doctorUpdated,
                 userToken: req.user
             });
         });
@@ -118,31 +118,31 @@ app.put('/:id', mdAuthentication.validateToken, (req, res) => {
 });
 
 // ============================================================
-// Delete user
+// Delete doctor
 // ============================================================
 app.delete('/:id', mdAuthentication.validateToken, (req, res) => {
     var id = req.params.id;
 
-    User.findByIdAndDelete(id, (err, userDeleted) => {
+    Doctor.findByIdAndDelete(id, (err, doctorDeleted) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                message: 'Error deleting user',
+                message: 'Error deleting doctor',
                 errors: err
             });
         }
 
-        if (!userDeleted) {
+        if (!doctorDeleted) {
             return res.status(400).json({
                 ok: false,
-                message: 'Error user with ID ' + id + ' not exists',
-                errors: { message: 'User not exists with this ID' }
+                message: 'Error doctor with ID ' + id + ' not exists',
+                errors: { message: 'Doctor not exists with this ID' }
             });
         }
 
         res.status(200).json({
             ok: true,
-            user: userDeleted,
+            doctor: doctorDeleted,
             userToken: req.user
         });
     });
