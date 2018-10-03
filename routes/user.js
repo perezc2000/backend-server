@@ -67,7 +67,8 @@ app.post('/', mdAuthentication.validateToken, (req, res) => {
         res.status(201).json({
             ok: true,
             user: userSaved,
-            userToken: req.user
+            userToken: req.user,
+            id: userSaved._id
         });
     });
 });
@@ -111,7 +112,8 @@ app.put('/:id', mdAuthentication.validateToken, (req, res) => {
             res.status(200).json({
                 ok: true,
                 user: userUpdated,
-                userToken: req.user
+                userToken: req.user,
+                id: userUpdated._id
             });
         });
     });
@@ -143,7 +145,8 @@ app.delete('/:id', mdAuthentication.validateToken, (req, res) => {
         res.status(200).json({
             ok: true,
             user: userDeleted,
-            userToken: req.user
+            userToken: req.user,
+            id: userDeleted._id
         });
     });
 });

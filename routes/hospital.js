@@ -63,7 +63,8 @@ app.post('/', mdAuthentication.validateToken, (req, res) => {
         res.status(201).json({
             ok: true,
             hospital: hospitalSaved,
-            userToken: req.user
+            userToken: req.user,
+            id: hospitalSaved._id
         });
     });
 });
@@ -109,7 +110,8 @@ app.put('/:id', mdAuthentication.validateToken, (req, res) => {
             res.status(200).json({
                 ok: true,
                 hospital: hospitalUpdated,
-                userToken: req.user
+                userToken: req.user,
+                id: hospitalUpdated._id
             });
         });
     });
@@ -141,7 +143,8 @@ app.delete('/:id', mdAuthentication.validateToken, (req, res) => {
         res.status(200).json({
             ok: true,
             hospital: hospitalDeleted,
-            userToken: req.user
+            userToken: req.user,
+            id: hospitalDeleted._id
         });
     });
 });

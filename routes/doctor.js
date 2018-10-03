@@ -65,7 +65,8 @@ app.post('/', mdAuthentication.validateToken, (req, res) => {
         res.status(201).json({
             ok: true,
             doctor: doctorSaved,
-            userToken: req.user
+            userToken: req.user,
+            id: doctorSaved._id
         });
     });
 });
@@ -111,7 +112,8 @@ app.put('/:id', mdAuthentication.validateToken, (req, res) => {
             res.status(200).json({
                 ok: true,
                 doctor: doctorUpdated,
-                userToken: req.user
+                userToken: req.user,
+                id: doctorUpdated._id
             });
         });
     });
@@ -143,7 +145,8 @@ app.delete('/:id', mdAuthentication.validateToken, (req, res) => {
         res.status(200).json({
             ok: true,
             doctor: doctorDeleted,
-            userToken: req.user
+            userToken: req.user,
+            id: doctorDeleted._id
         });
     });
 });
